@@ -8,24 +8,26 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1 class="title">Tic Tac Toe</h1>
-
-        <div id="tic-tac-toe-board" class="tic-tac-toe-board">
-            <div id="0" class="cell"></div>
-            <div id="1" class="cell"></div>
-            <div id="2" class="cell"></div>
-            <div id="3" class="cell"></div>
-            <div id="4" class="cell"></div>
-            <div id="5" class="cell"></div>
-            <div id="6" class="cell"></div>
-            <div id="7" class="cell"></div>
-            <div id="8" class="cell"></div>
-        </div>
-        
-        <button class="reset-button">Reset</button>
+    <h1>Tic Tac Toe</h1>
+    <div>
+        <label for="player1">Player 1:</label>
+        <input type="text" id="player1" name="player1">
+        <label for="player2">Player 2:</label>
+        <input type="text" id="player2" name="player2">
     </div>
-
+    <div id="game-board">
+        <!-- Cells will be added dynamically -->
+    </div>
+    <div id="winning-message"></div>
+    <div id="buttons-container">
+        <button id="start-button">Start Game</button>
+        <button id="reset-button" disabled>Reset Game</button>
+    </div>
+    <div id="timer">00:00</div>
+    <footer>
+        <p>&copy; JHaseldenDev 2023</p>
+    </footer>
     <script src="scripts.js"></script>
 </body>
 </html>
+

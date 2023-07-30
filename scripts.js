@@ -1,139 +1,91 @@
-// Factory function to create players
-const createPlayer = (name, marker) => {
-    return { name, marker };
-};
+let player1, player2, currentTurn, gameActive, timerId, cells;
+const winningMessageDiv = document.getElementById("winning-message");
+const timerDiv = document.getElementById("timer");
 
-// Module for game board
-const gameBoard = (() => {
-    let board = Array(3).fill().map(() => Array(3).fill(''));
+document.getElementById("start-button").addEventListener("click", startGame);
+document.getElementById("reset-button").addEventListener("click", resetGame);
 
-    const getBoard = () => board;
+function startGame() {
+    player1 = document.getElementById("player1").value;
+    player2 = document.getElementById("player2").value;
+    if (!player1 || !player2) {
+        alert("Please enter names for both players");
+        return;
+    }
+    currentTurn = player1;
+    gameActive = true;
+    this.disabled = true;
+    document.getElementById("reset-button").disabled = false;
 
-    const setCell = (row, col, marker) => {
-        if(board[row][col] === '') {
-            board[row][col] = marker;
-            return true;
-        }
-        return false;
-    };
+    // Create the game board
+    const gameBoard = document.getElementById("game-board");
+    cells = [];
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.addEventListener('click', handleClick, { once: true });
+        gameBoard.appendChild(cell);
+        cells.push(cell);
+    }
 
-    const reset = () => {
-        board = Array(3).fill().map(() => Array(3).fill(''));
-    };
+    startTimer();
+}
 
-    const checkWin = (marker) => {
-        const winConditions = [
-            [[0, 0], [0, 1], [0, 2]],
-            [[1, 0], [1, 1], [1, 2]],
-            [[2, 0], [2, 1], [2, 2]],
-            [[0, 0], [1, 0], [2, 0]],
-            [[0, 1], [1, 1], [2, 1]],
-            [[0, 2], [1, 2], [2, 2]],
-            [[0, 0], [1, 1], [2, 2]],
-            [[0, 2], [1, 1], [2, 0]],
-        ];
-
-        return winConditions.find(condition => condition.every(([row, col]) => board[row][col] === marker));
-    };
-
-    return { getBoard, setCell, reset, checkWin };
-})();
-
-// Module for display controller
-const displayController = (() => {
-    const cells = document.querySelectorAll('.cell');
-    const resetButton = document.querySelector('.reset-button');
-
-    const render = () => {
-        const gameBoardData = gameBoard.getBoard();
-        gameBoardData.forEach((rowData, rowIndex) => {
-            rowData.forEach((cellData, cellIndex) => {
-                cells[rowIndex * 3 + cellIndex].textContent = cellData;
-            });
-        });
-    };
-
-    const addClickListener = (listener) => {
-        cells.forEach(cell => {
-            cell.addEventListener('click', listener);
-        });
-    };
-
-    const highlightWin = (winCells) => {
-        winCells.forEach(([row, col]) => {
-            cells[row * 3 + col].style.backgroundColor = 'green';
-        });
-    };
-
-    const clearHighlights = () => {
-        cells.forEach(cell => {
-            cell.style.backgroundColor = '';
-        });
-    };
-
-    resetButton.addEventListener('click', () => {
-        gameBoard.reset();
-        clearHighlights();
-        render();
+function resetGame() {
+    cells.forEach(cell => {
+        cell.innerText = '';
+        cell.style.backgroundColor = "#718093";
     });
+    document.getElementById("start-button").disabled = false;
+    this.disabled = true;
+    gameActive = false;
+    stopTimer();
+    timerDiv.innerText = "00:00";
+}
 
-    return { render, addClickListener, highlightWin, clearHighlights };
-})();
+function startTimer() {
+    let seconds = 0;
+    timerId = setInterval(function() {
+        seconds++;
+        let minutes = Math.floor(seconds / 60);
+        let remainingSeconds = seconds % 60;
+        timerDiv.innerText = `${pad(minutes)}:${pad(remainingSeconds)}`;
+    }, 1000);
+}
 
-// Module for game
-const game = (() => {
-    let currentPlayer;
-    const player1 = createPlayer('Player 1', 'X');
-    const player2 = createPlayer('Player 2', 'O');
+function stopTimer() {
+    clearInterval(timerId);
+}
 
-    const start = () => {
-        currentPlayer = player1;
-        displayController.addClickListener(handleClick);
-    };
+function pad(number) {
+    return number < 10 ? "0" + number : number;
+}
 
-    const handleClick = (e) => {
-        const cell = e.target;
-        const row = Math.floor(cell.id / 3);
-        const col = cell.id % 3;
+cells.forEach(cell => {
+    cell.addEventListener('click', handleClick, { once: true })
+});
 
-        if (gameBoard.setCell(row, col, currentPlayer.marker)) {
-            displayController.render();
+function handleClick(e) {
+    const cell = e.target;
+    if (!gameActive || cell.innerText !== '') return;
+    cell.innerText = currentTurn === player1 ? "X" : "O";
+    cell.style.backgroundColor = currentTurn === player1 ? "#ff6347" : "#4682b4";
+    checkWin();
+    currentTurn = currentTurn === player1 ? player2 : player1;
+}
 
-            const winCells = gameBoard.checkWin(currentPlayer.marker);
-            if (winCells) {
-                displayController.highlightWin(winCells);
-                setTimeout(() => {
-                    alert(`Player ${currentPlayer.name} wins!`);
-                    resetGame();
-                }, 100); // delay to allow DOM update
-                return; // end the game
-            }
-
-            if (isTie()) {
-                alert('The game is a tie!');
-                resetGame();
-                return; // end the game
-            }
-
-            // Switch players
-            currentPlayer = currentPlayer === player1 ? player2 : player1;
+function checkWin() {
+    let isWinningCombination = false;
+    winningCombinations.forEach(combination => {
+        if (cells[combination[0]].innerText !== '' && cells[combination[0]].innerText === cells[combination[1]].innerText && cells[combination[1]].innerText === cells[combination[2]].innerText) {
+            isWinningCombination = true;
+            combination.forEach(index => cells[index].style.backgroundColor = "green");
         }
-    };
-
-    const resetGame = () => {
-        gameBoard.reset();
-        displayController.clearHighlights();
-        displayController.render();
-        start();  // Start a new game
-    };
-
-    const isTie = () => {
-        const board = gameBoard.getBoard();
-        return board.flat().every(cell => cell !== '');
-    };
-
-    return { start };
-})();
-
-// Start game
-game.start();
+    });
+    if (isWinningCombination) {
+        winningMessageDiv.innerText = `${currentTurn} Wins!`;
+        gameActive = false;
+        document.getElementById("reset-button").disabled = false;
+        stopTimer();
+    }
+}
