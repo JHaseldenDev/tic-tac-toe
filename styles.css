@@ -1,0 +1,58 @@
+:root {
+    --bg-color: #222;
+    --fg-color: #ddd;
+    --main-color: #f90;
+    --font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.game-container {
+    text-align: center;
+}
+
+.title {
+    color: var(--main-color);
+    margin-bottom: 2rem;
+}
+
+.tic-tac-toe-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 15px;
+    margin-bottom: 2rem;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background-color: var(--fg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 2em;
+}
+
+.reset-button {
+    color: var(--bg-color);
+    background-color: var(--main-color);
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.reset-button:hover {
+    opacity: 0.9;
+}
