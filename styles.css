@@ -17,8 +17,8 @@ h1 {
 }
 
 input[type="text"] {
-    margin: 0.5em;
-    padding: 0.5em;
+    margin: 1em;
+    padding: 1em;
     font-size: 1em;
     border: none;
     border-radius: 5px;
@@ -45,11 +45,12 @@ input[type="text"] {
 #game-board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-gap: 10px;
+    grid-gap: 5px;
     width: 310px;
     justify-content: center;
     align-items: center;
     background: #dddfe2;
+    margin-top: 30px;
 }
 
 .cell {
@@ -68,13 +69,19 @@ input[type="text"] {
     background-color: green;
 }
 
-#winner-message {
+#winning-message {
     color: #f5f6fa;
     font-size: 2em;
     text-align: center;
-    margin-bottom: 1em;
+    margin: 5px;
     padding: 5px;
+    min-height: 2.5em;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
 }
+
+
 
 footer {
     position: fixed;

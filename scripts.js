@@ -1,6 +1,14 @@
-let player1, player2, currentTurn, gameActive, timerId, cells;
+let player1, player2, currentTurn, gameActive, timerId;
 const winningMessageDiv = document.getElementById("winning-message");
 const timerDiv = document.getElementById("timer");
+const gameBoard = document.getElementById("game-board");
+let cells = [];  
+
+const winningCombinations = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],  // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],  // Columns
+    [0, 4, 8], [2, 4, 6]               // Diagonals
+];
 
 document.getElementById("start-button").addEventListener("click", startGame);
 document.getElementById("reset-button").addEventListener("click", resetGame);
@@ -12,36 +20,42 @@ function startGame() {
         alert("Please enter names for both players");
         return;
     }
-    currentTurn = player1;
+    currentTurn = "X";
     gameActive = true;
     this.disabled = true;
     document.getElementById("reset-button").disabled = false;
+    winningMessageDiv.innerText = "";
 
     // Create the game board
-    const gameBoard = document.getElementById("game-board");
-    cells = [];
+    while (gameBoard.firstChild) {
+        gameBoard.removeChild(gameBoard.firstChild);
+    }
     for (let i = 0; i < 9; i++) {
         const cell = document.createElement("div");
         cell.classList.add("cell");
         cell.addEventListener('click', handleClick, { once: true });
         gameBoard.appendChild(cell);
-        cells.push(cell);
     }
 
+    cells = Array.from(document.querySelectorAll(".cell"));
     startTimer();
 }
 
 function resetGame() {
     cells.forEach(cell => {
         cell.innerText = '';
-        cell.style.backgroundColor = "#718093";
+        cell.style.backgroundColor = "#2f3640";
+        cell.removeEventListener('click', handleClick);  
+        cell.addEventListener('click', handleClick, { once: true });
     });
     document.getElementById("start-button").disabled = false;
     this.disabled = true;
     gameActive = false;
     stopTimer();
     timerDiv.innerText = "00:00";
+    winningMessageDiv.innerText = "";
 }
+
 
 function startTimer() {
     let seconds = 0;
@@ -61,18 +75,33 @@ function pad(number) {
     return number < 10 ? "0" + number : number;
 }
 
-cells.forEach(cell => {
-    cell.addEventListener('click', handleClick, { once: true })
-});
-
 function handleClick(e) {
     const cell = e.target;
     if (!gameActive || cell.innerText !== '') return;
-    cell.innerText = currentTurn === player1 ? "X" : "O";
-    cell.style.backgroundColor = currentTurn === player1 ? "#ff6347" : "#4682b4";
-    checkWin();
-    currentTurn = currentTurn === player1 ? player2 : player1;
+    cell.innerText = currentTurn;
+    if (checkWin()) {
+        winningMessageDiv.innerText = `${currentTurn === "X" ? player1 : player2} Wins!`;
+        winningMessageDiv.style.visibility = 'visible';
+        winningMessageDiv.style.opacity = '1';
+        gameActive = false;
+        document.getElementById("reset-button").disabled = false;
+        stopTimer();
+    } else if (isTie()) {
+        winningMessageDiv.innerText = "It's a Tie!";
+        winningMessageDiv.style.visibility = 'visible';
+        winningMessageDiv.style.opacity = '1';
+        gameActive = false;
+        document.getElementById("reset-button").disabled = false;
+        stopTimer();
+    } else {
+        currentTurn = currentTurn === "X" ? "O" : "X";
+    }
 }
+
+function isTie() {
+    return [...cells].every(cell => cell.innerText === 'X' || cell.innerText === 'O');
+}
+
 
 function checkWin() {
     let isWinningCombination = false;
@@ -83,7 +112,9 @@ function checkWin() {
         }
     });
     if (isWinningCombination) {
-        winningMessageDiv.innerText = `${currentTurn} Wins!`;
+        winningMessageDiv.innerText = `${currentTurn === "X" ? player1 : player2} Wins!`;
+        winningMessageDiv.style.visibility = 'visible';
+        winningMessageDiv.style.opacity = '1';
         gameActive = false;
         document.getElementById("reset-button").disabled = false;
         stopTimer();
