@@ -16,7 +16,7 @@ h1 {
     margin-bottom: 0.5em;
 }
 
-input[type="text"] {
+input[type="text"], select {
     margin: 1em;
     padding: 1em;
     font-size: 1em;
@@ -80,8 +80,6 @@ input[type="text"] {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
 }
-
-
 
 footer {
     position: fixed;
